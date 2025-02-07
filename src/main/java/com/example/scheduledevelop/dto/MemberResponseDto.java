@@ -5,21 +5,18 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
-public class ScheduleResponseDto {
+public class MemberResponseDto {
+
     private final Long id;
     private final String memberName;
     private final String email;
-    private final String title;
-    private final String contents;
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
 
-    public ScheduleResponseDto(Long id, String memberName, String email, String title, String contents, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+    public MemberResponseDto(Long id, String memberName, String email, LocalDateTime createdAt, LocalDateTime modifiedAt) {
         this.id = id;
         this.memberName = memberName;
         this.email = email;
-        this.title = title;
-        this.contents = contents;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
     }

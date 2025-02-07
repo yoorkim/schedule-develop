@@ -14,22 +14,22 @@ public class Schedule extends BaseEntity{
     private Long id;
 
     @Column(nullable = false)
-    private String memberName;
-
-    @Column(nullable = false)
     @Setter
     private String title;
 
     @Setter
     private String contents;
 
+    @ManyToOne
+    @JoinColumn(name = "member_id")
+    @Setter
+    private Member member;
+
     public Schedule() {
     }
 
-    public Schedule(String memberName, String title, String contents) {
-        this.memberName = memberName;
+    public Schedule(String title, String contents) {
         this.title = title;
         this.contents = contents;
     }
-
 }
