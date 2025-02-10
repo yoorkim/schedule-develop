@@ -1,10 +1,12 @@
 package com.example.scheduledevelop.dto;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Getter
+@RequiredArgsConstructor
 public class ScheduleResponseDto {
     private final Long id;
     private final String memberName;
@@ -14,13 +16,4 @@ public class ScheduleResponseDto {
     private final LocalDateTime createdAt;
     private final LocalDateTime modifiedAt;
 
-    public ScheduleResponseDto(Long id, String memberName, String email, String title, String contents, LocalDateTime createdAt, LocalDateTime modifiedAt) {
-        this.id = id;
-        this.memberName = memberName;
-        this.email = email;
-        this.title = title;
-        this.contents = contents;
-        this.createdAt = createdAt;
-        this.modifiedAt = modifiedAt;
-    }
 }

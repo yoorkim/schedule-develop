@@ -1,5 +1,6 @@
 package com.example.scheduledevelop.service;
 
+import com.example.scheduledevelop.dto.LoginRequestDto;
 import com.example.scheduledevelop.dto.MemberResponseDto;
 import com.example.scheduledevelop.dto.SignUpRequestDto;
 import com.example.scheduledevelop.dto.UpdateMemberRequestDto;
@@ -9,8 +10,10 @@ import com.example.scheduledevelop.repository.MemberRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,11 +29,25 @@ public class MemberService {
 
     @Transactional
     public MemberResponseDto signUp(SignUpRequestDto requestDto) {
-        Member member = new Member(requestDto.getMemberName(), requestDto.getEmail());
+        if (memberRepository.findMemberByEmail(requestDto.getEmail()).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 가입된 이메일입니다.");
+        }
+
+        Member member = new Member(requestDto.getMemberName(), requestDto.getEmail(), requestDto.getPwd());
         Member savedMember = memberRepository.save(member);
 
         return new MemberResponseDto(savedMember.getId(), savedMember.getMemberName(), savedMember.getEmail(),
                 savedMember.getCreatedAt(), savedMember.getModifiedAt());
+    }
+
+    @Transactional
+    public Member login(LoginRequestDto requestDto) {
+        Member member = memberRepository.findMemberByEmailOrElseThrow(requestDto.getEmail());
+        if (!member.getPwd().equals(requestDto.getPwd())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "올바른 비밀번호가 아닙니다.");
+        }
+
+        return member;
     }
 
     @Transactional(readOnly = true)
@@ -55,15 +72,15 @@ public class MemberService {
     }
 
     @Transactional
-    public MemberResponseDto update(Long id, UpdateMemberRequestDto requestDto) {
+    public Member update(Long id, UpdateMemberRequestDto requestDto) {
         Member findMember = memberRepository.findByIdOrElseThrow(id);
 
         findMember.setMemberName(requestDto.getMemberName());
+        findMember.setEmail(requestDto.getEmail());
 
         entityManager.flush();
 
-        return new MemberResponseDto(findMember.getId(), findMember.getMemberName(), findMember.getEmail(),
-                findMember.getCreatedAt(), findMember.getModifiedAt());
+        return findMember;
     }
 
     @Transactional

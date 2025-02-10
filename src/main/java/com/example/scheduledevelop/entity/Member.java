@@ -17,14 +17,18 @@ public class Member extends BaseEntity{
     private String memberName;
 
     @Column(nullable = false, unique = true)
+    @Setter
     private String email;
+
+    @Column(nullable = false)
+    private String pwd;
 
     public Member() {
     }
 
-    public Member(String memberName, String email) {
+    public Member(String memberName, String email, String pwd) {
         this.memberName = memberName;
         this.email = email;
+        this.pwd = pwd;
     }
-
 }

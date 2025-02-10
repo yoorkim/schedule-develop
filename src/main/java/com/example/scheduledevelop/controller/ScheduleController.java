@@ -4,6 +4,7 @@ import com.example.scheduledevelop.dto.CreateScheduleRequestDto;
 import com.example.scheduledevelop.dto.ScheduleResponseDto;
 import com.example.scheduledevelop.dto.UpdateScheduleRequestDto;
 import com.example.scheduledevelop.service.ScheduleService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ public class ScheduleController {
     private final ScheduleService scheduleService;
 
     @PostMapping
-    public ResponseEntity<ScheduleResponseDto> saveSchedule(@RequestBody CreateScheduleRequestDto requestDto) {
+    public ResponseEntity<ScheduleResponseDto> saveSchedule(@Valid @RequestBody CreateScheduleRequestDto requestDto) {
         return new ResponseEntity<>(scheduleService.save(requestDto), HttpStatus.CREATED);
     }
 
@@ -36,7 +37,7 @@ public class ScheduleController {
     @PutMapping("/{id}")
     public ResponseEntity<ScheduleResponseDto> updateSchedule(
             @PathVariable Long id,
-            @RequestBody UpdateScheduleRequestDto requestDto) {
+            @Valid @RequestBody UpdateScheduleRequestDto requestDto) {
         return new ResponseEntity<>(scheduleService.update(id, requestDto), HttpStatus.OK);
     }
 
