@@ -1,5 +1,6 @@
 package com.example.scheduledevelop.service;
 
+import com.example.scheduledevelop.config.PasswordEncoder;
 import com.example.scheduledevelop.dto.LoginRequestDto;
 import com.example.scheduledevelop.dto.MemberResponseDto;
 import com.example.scheduledevelop.dto.SignUpRequestDto;
@@ -23,6 +24,7 @@ import java.util.List;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @PersistenceContext
     private EntityManager entityManager; // EntityManager 주입
@@ -33,17 +35,21 @@ public class MemberService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 가입된 이메일입니다.");
         }
 
-        Member member = new Member(requestDto.getMemberName(), requestDto.getEmail(), requestDto.getPwd());
-        Member savedMember = memberRepository.save(member);
+        String encodedPwd = passwordEncoder.encode(requestDto.getPwd());
 
-        return new MemberResponseDto(savedMember.getId(), savedMember.getMemberName(), savedMember.getEmail(),
-                savedMember.getCreatedAt(), savedMember.getModifiedAt());
+        if (passwordEncoder.matches(requestDto.getPwd(), encodedPwd)) {
+            Member member = new Member(requestDto.getMemberName(), requestDto.getEmail(), encodedPwd);
+            Member savedMember = memberRepository.save(member);
+            return new MemberResponseDto(savedMember.getId(), savedMember.getMemberName(), savedMember.getEmail(),
+                    savedMember.getCreatedAt(), savedMember.getModifiedAt());
+        }
+        return null;
     }
 
     @Transactional
     public Member login(LoginRequestDto requestDto) {
         Member member = memberRepository.findMemberByEmailOrElseThrow(requestDto.getEmail());
-        if (!member.getPwd().equals(requestDto.getPwd())) {
+        if (!passwordEncoder.matches(requestDto.getPwd(), member.getPwd())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "올바른 비밀번호가 아닙니다.");
         }
 
