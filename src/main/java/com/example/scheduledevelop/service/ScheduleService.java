@@ -1,8 +1,6 @@
 package com.example.scheduledevelop.service;
 
-import com.example.scheduledevelop.dto.ScheduleRequestDto;
-import com.example.scheduledevelop.dto.LoggedInMemberDto;
-import com.example.scheduledevelop.dto.ScheduleResponseDto;
+import com.example.scheduledevelop.dto.*;
 import com.example.scheduledevelop.entity.Member;
 import com.example.scheduledevelop.entity.Schedule;
 import com.example.scheduledevelop.repository.CommentRepository;
@@ -12,13 +10,14 @@ import jakarta.persistence.EntityManager;
 
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -44,17 +43,18 @@ public class ScheduleService {
     }
 
     @Transactional(readOnly = true)
-    public List<ScheduleResponseDto> findAll() {
-        List<Schedule> scheduleList = scheduleRepository.findAll();
-        List<ScheduleResponseDto> dtoList= new ArrayList<>();
+    public PagedResponseDto<ScheduleDetailDto> findAll(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.desc("modifiedAt")));
+        Page<Object[]> schedulePage = scheduleRepository.findAllWithCommentCount(pageable);
 
-        for (Schedule schedule : scheduleList) {
-            dtoList.add(new ScheduleResponseDto(schedule.getId(), schedule.getMember().getMemberName(), schedule.getMember().getEmail(),
-                    schedule.getTitle(), schedule.getContents(),
-                    schedule.getCreatedAt(), schedule.getModifiedAt()));
-        }
+        Page<ScheduleDetailDto> responsePage = schedulePage.map(row -> {
+            Schedule schedule = (Schedule) row[0];
+            Long commentCount = (Long) row[1];
 
-        return dtoList;
+            return new ScheduleDetailDto(schedule, commentCount);
+        });
+
+        return new PagedResponseDto<>(responsePage);
     }
 
     @Transactional(readOnly = true)
