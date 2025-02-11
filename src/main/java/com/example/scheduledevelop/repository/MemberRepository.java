@@ -16,6 +16,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     }
 
     default Member findByIdOrElseThrow(Long id) {
-        return findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Does not exist id = " + id));
+        return findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Does not exist member id = " + id));
     }
 }

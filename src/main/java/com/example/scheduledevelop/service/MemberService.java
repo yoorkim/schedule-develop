@@ -6,8 +6,10 @@ import com.example.scheduledevelop.dto.MemberResponseDto;
 import com.example.scheduledevelop.dto.SignUpRequestDto;
 import com.example.scheduledevelop.dto.UpdateMemberRequestDto;
 import com.example.scheduledevelop.entity.Member;
+import com.example.scheduledevelop.repository.CommentRepository;
 import com.example.scheduledevelop.repository.MemberRepository;
 
+import com.example.scheduledevelop.repository.ScheduleRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,8 @@ import java.util.List;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final ScheduleRepository scheduleRepository;
+    private final CommentRepository commentRepository;
     private final PasswordEncoder passwordEncoder;
 
     @PersistenceContext
@@ -92,6 +96,11 @@ public class MemberService {
     @Transactional
     public void delete(Long id) {
         Member findMember = memberRepository.findByIdOrElseThrow(id);
+        // 회원과 관련된 댓글 삭제
+        commentRepository.deleteByMemberId(id);
+        //회원과 관련된 일정 삭제
+        scheduleRepository.deleteByMemberId(id);
+
         memberRepository.delete(findMember);
     }
 }

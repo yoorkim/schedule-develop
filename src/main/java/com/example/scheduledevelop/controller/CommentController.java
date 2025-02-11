@@ -1,10 +1,10 @@
 package com.example.scheduledevelop.controller;
 
-import com.example.scheduledevelop.dto.ScheduleRequestDto;
+import com.example.scheduledevelop.dto.CommentResponseDto;
+import com.example.scheduledevelop.dto.CommentRequestDto;
 import com.example.scheduledevelop.dto.LoggedInMemberDto;
-import com.example.scheduledevelop.dto.ScheduleResponseDto;
 import com.example.scheduledevelop.entity.Member;
-import com.example.scheduledevelop.service.ScheduleService;
+import com.example.scheduledevelop.service.CommentService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -16,47 +16,47 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/schedules")
+@RequestMapping("/comments")
 @RequiredArgsConstructor
-public class ScheduleController {
+public class CommentController {
 
-    private final ScheduleService scheduleService;
+    private final CommentService commentService;
 
     @PostMapping
-    public ResponseEntity<ScheduleResponseDto> saveSchedule(@Valid @RequestBody ScheduleRequestDto requestDto, HttpServletRequest request) {
+    public ResponseEntity<CommentResponseDto> saveComment(@Valid @RequestBody CommentRequestDto requestDto, HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         LoggedInMemberDto loggedInMemberDto = new LoggedInMemberDto((Member) session.getAttribute("sessionKey"));
 
-        return new ResponseEntity<>(scheduleService.save(requestDto, loggedInMemberDto), HttpStatus.CREATED);
+        return new ResponseEntity<>(commentService.save(requestDto, loggedInMemberDto), HttpStatus.CREATED);
     }
 
     @GetMapping
-    public ResponseEntity<List<ScheduleResponseDto>> findAll() {
-        return new ResponseEntity<>(scheduleService.findAll(), HttpStatus.OK);
+    public ResponseEntity<List<CommentResponseDto>> findAll() {
+        return new ResponseEntity<>(commentService.findAll(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ScheduleResponseDto> findById(@PathVariable Long id) {
-        return new ResponseEntity<>(scheduleService.findById(id), HttpStatus.OK);
+    public ResponseEntity<CommentResponseDto> findById(@PathVariable Long id) {
+        return new ResponseEntity<>(commentService.findById(id), HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ScheduleResponseDto> updateSchedule(
+    public ResponseEntity<CommentResponseDto> updateComment(
             @PathVariable Long id,
-            @Valid @RequestBody ScheduleRequestDto requestDto,
+            @Valid @RequestBody CommentRequestDto requestDto,
             HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         LoggedInMemberDto loggedInMemberDto = new LoggedInMemberDto((Member) session.getAttribute("sessionKey"));
 
-        return new ResponseEntity<>(scheduleService.update(id, requestDto, loggedInMemberDto), HttpStatus.OK);
+        return new ResponseEntity<>(commentService.update(id, requestDto, loggedInMemberDto), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteSchedule(@PathVariable Long id, HttpServletRequest request) {
+    public ResponseEntity<Void> deleteComment(@PathVariable Long id, HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         LoggedInMemberDto loggedInMemberDto = new LoggedInMemberDto((Member) session.getAttribute("sessionKey"));
 
-        scheduleService.delete(id, loggedInMemberDto);
+        commentService.delete(id, loggedInMemberDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
