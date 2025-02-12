@@ -10,8 +10,6 @@ import com.example.scheduledevelop.repository.CommentRepository;
 import com.example.scheduledevelop.repository.MemberRepository;
 
 import com.example.scheduledevelop.repository.ScheduleRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -30,9 +28,6 @@ public class MemberService {
     private final CommentRepository commentRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @PersistenceContext
-    private EntityManager entityManager; // EntityManager 주입
-
     @Transactional
     public MemberResponseDto signUp(SignUpRequestDto requestDto) {
         if (memberRepository.findMemberByEmail(requestDto.getEmail()).isPresent()) {
@@ -50,7 +45,7 @@ public class MemberService {
         return null;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Member login(LoginRequestDto requestDto) {
         Member member = memberRepository.findMemberByEmailOrElseThrow(requestDto.getEmail());
         if (!passwordEncoder.matches(requestDto.getPwd(), member.getPwd())) {
@@ -87,8 +82,6 @@ public class MemberService {
 
         findMember.setMemberName(requestDto.getMemberName());
         findMember.setEmail(requestDto.getEmail());
-
-        entityManager.flush();
 
         return findMember;
     }
