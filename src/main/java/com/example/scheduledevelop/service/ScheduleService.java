@@ -3,7 +3,6 @@ package com.example.scheduledevelop.service;
 import com.example.scheduledevelop.dto.*;
 import com.example.scheduledevelop.entity.Member;
 import com.example.scheduledevelop.entity.Schedule;
-import com.example.scheduledevelop.repository.CommentRepository;
 import com.example.scheduledevelop.repository.MemberRepository;
 import com.example.scheduledevelop.repository.ScheduleRepository;
 import jakarta.persistence.EntityManager;
@@ -25,8 +24,6 @@ public class ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
     private final MemberRepository memberRepository;
-    private final CommentRepository commentRepository;
-
     @PersistenceContext
     private EntityManager entityManager; // EntityManager 주입
 
@@ -38,8 +35,7 @@ public class ScheduleService {
         Schedule schedule = new Schedule(requestDto.getTitle(), requestDto.getContents(), findMember);
         Schedule savedSchedule = scheduleRepository.save(schedule);
 
-        return new ScheduleResponseDto(savedSchedule.getId(), findMember.getMemberName(), findMember.getEmail(), savedSchedule.getTitle(), savedSchedule.getContents(),
-                savedSchedule.getCreatedAt(), savedSchedule.getModifiedAt());
+        return new ScheduleResponseDto(savedSchedule);
     }
 
     @Transactional(readOnly = true)
@@ -61,9 +57,7 @@ public class ScheduleService {
     public ScheduleResponseDto findById(Long id) {
         Schedule findSchedule = scheduleRepository.findByIdOrElseThrow(id);
 
-        return new ScheduleResponseDto(findSchedule.getId(), findSchedule.getMember().getMemberName(), findSchedule.getMember().getEmail(),
-                findSchedule.getTitle(), findSchedule.getContents(),
-                findSchedule.getCreatedAt(), findSchedule.getModifiedAt());
+        return new ScheduleResponseDto(findSchedule);
     }
 
     @Transactional
@@ -80,9 +74,7 @@ public class ScheduleService {
 
         entityManager.flush();
 
-        return new ScheduleResponseDto(findSchedule.getId(), findSchedule.getMember().getMemberName(), findSchedule.getMember().getEmail(),
-                findSchedule.getTitle(), findSchedule.getContents(),
-                findSchedule.getCreatedAt(), findSchedule.getModifiedAt());
+        return new ScheduleResponseDto(findSchedule);
     }
 
     @Transactional
@@ -93,9 +85,6 @@ public class ScheduleService {
         if (!findSchedule.getMember().getEmail().equals(memberDto.getEmail())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "본인이 작성한 일정만 삭제할 수 있습니다.");
         }
-
-        // 관련된 댓글 삭제
-        commentRepository.deleteByScheduleId(id);
 
         scheduleRepository.delete(findSchedule);
     }

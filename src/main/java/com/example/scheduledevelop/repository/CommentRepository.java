@@ -11,6 +11,5 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
         return findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Does not exist comment id = " + id));
     }
 
-    void deleteByScheduleId(Long scheduleId);
     void deleteByMemberId(Long memberId);
 }
