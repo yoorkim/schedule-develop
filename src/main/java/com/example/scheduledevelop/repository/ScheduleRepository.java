@@ -14,7 +14,7 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
         return findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Does not exist schedule id = " + id));
     }
 
-    @Query("SELECT s, COUNT(c) FROM Schedule s LEFT JOIN Comment c ON c.schedule.id = s.id GROUP BY s")
+    @Query("SELECT s, COUNT(c) FROM Schedule s LEFT JOIN s.comments c GROUP BY s")
     Page<Object[]> findAllWithCommentCount(Pageable pageable);
 
     void deleteByMemberId(Long memberId);
